@@ -43,6 +43,12 @@ def getModelError(data, model, embeddings):
 def getAllErrors(datas, models, embeddings):
     for i in xrange(0,len(datas)):
         print 'Error :',getModelError(datas[i],models[i],embeddings)
+        
+def trainABit(all_deps, embeds, models):
+    for i in xrange(0,15):
+        embeds, models = improveEmbeddings(all_deps,embeds,models)
+        print 'number',i
+    return embeds, models
     
 def improveEmbeddings(all_dependencies, embeddings, all_models=None):
     #initial models
@@ -61,7 +67,7 @@ def improveEmbeddings(all_dependencies, embeddings, all_models=None):
         
         for d in dep:
             desired_arg = model.predict(embeddings[d[0]])
-            embeddings[d[1]] = np.array(embeddings[d[1]]) - alpha*np.array(desired_arg)
+            embeddings[d[1]] = (1-alpha)*np.array(embeddings[d[1]]) + alpha*(np.array(desired_arg)-np.array(embeddings[d[1]]))
             #renormalize to unit length
             embeddings[d[1]] = embeddings[d[1]]/np.linalg.norm(embeddings[d[1]])
             
