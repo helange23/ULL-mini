@@ -40,16 +40,17 @@ def getModelError(data, model, embeddings):
     
     return model.score(input1, output1)
     
-def improveEmbeddings(ls, lg, rs, rg, embeddings, all_models=None):
+def getAllErrors(datas, models, embeddings):
+    for i in xrange(0,len(datas)):
+        print 'Error :',getModelError(datas[i],models[i],embeddings)
+    
+def improveEmbeddings(all_dependencies, embeddings, all_models=None):
     #initial models
     if all_models == None:
-        m_ls = trainLinearModel(ls, embeddings)
-        m_lg = trainLinearModel(lg, embeddings)
-        m_rs = trainLinearModel(rs, embeddings)
-        m_rg = trainLinearModel(rg, embeddings)
-        all_models = [m_ls, m_lg, m_rs, m_rg]
+        all_models = list()
+        for d in all_dependencies:
+            all_models.append(trainLinearModel(d, embeddings))
         
-    all_dependencies = [ls, lg, rs, rg]
 
     #learning rate
     alpha = 0.05    
@@ -135,7 +136,7 @@ def createDesignMatrix(corpus, embeddings):
     #good pair otherwise a bad one
     print 'bad',bad,'good',good
 
-    return leftstop, leftgo, rightstop, rightgo
+    return [leftstop, leftgo, rightstop, rightgo]
             
         
         
@@ -181,3 +182,31 @@ def loadEmbeddings():
         embeds[w[0]] = np.double(w[1:])/np.linalg.norm(np.double(w[1:]))
         
     return embeds
+    
+    
+def deleteUnusedWords(embeddings, all_deps):
+    unique_words = set()
+    for dep in all_deps:
+        for d in dep:
+            unique_words.add(d[0])
+            unique_words.add(d[1])
+    for k in embeddings.keys():
+        if not k in unique_words:
+            del embeddings[k]
+
+def initialize():
+    embeddings = loadEmbeddings()
+    all_deps = createDesignMatrix(loadCorpus(),embeddings)
+    deleteUnusedWords(embeddings, all_deps)
+    
+    return embeddings, all_deps
+    
+    
+    
+
+def prepareForSne(embeddings):
+    f = open('sne.txt','w')
+
+    for k in embeddings.keys():
+        stra = ' '.join(map(str, embeddings[k]))
+        print >>f, k, stra
