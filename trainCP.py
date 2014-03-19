@@ -12,16 +12,11 @@ from sklearn import linear_model
 
 def trainLinearModel(data, embeddings):
     
-    input1 = list()
-    output1 = list()
-    
-    #unzipping the data
-    for d in data:
-        input1.append(embeddings[d[0]])
-        output1.append(embeddings[d[1]])
+    input1,output1 = unzipData(data, embeddings)
     
     input1 = np.array(input1)
     output1 = np.array(output1)
+    
     print input1.shape,output1.shape
 
     clf = linear_model.LinearRegression(normalize=True)
@@ -29,23 +24,30 @@ def trainLinearModel(data, embeddings):
     
     return clf
     
-def getModelError(data, model, embeddings):
+def unzipData(data, embeddings):
     input1 = list()
     output1 = list()
     
     #unzipping the data
     for d in data:
-        input1.append(embeddings[d[0]])
+        input1.append(np.append(embeddings[d[0]],1))
         output1.append(embeddings[d[1]])
+    
+    return input1,output1
+    
+def getModelError(data, model, embeddings):
+    
+    input1, output1 = unzipData(data, embeddings)
     
     return model.score(input1, output1)
     
 def getAllErrors(datas, models, embeddings):
     for i in xrange(0,len(datas)):
         print 'Error :',getModelError(datas[i],models[i],embeddings)
+
         
 def trainABit(all_deps, embeds, models):
-    for i in xrange(0,15):
+    for i in xrange(0,200):
         embeds, models = improveEmbeddings(all_deps,embeds,models)
         print 'number',i
     return embeds, models
@@ -56,29 +58,44 @@ def improveEmbeddings(all_dependencies, embeddings, all_models=None):
         all_models = list()
         for d in all_dependencies:
             all_models.append(trainLinearModel(d, embeddings))
-        
 
     #learning rate
-    alpha = 0.05    
+    alpha = 0.05
+    
+    d_embed = dict()
     
     for i in xrange(0,4):
         dep = all_dependencies[i]
         model = all_models[i]
         
+        
+        
         for d in dep:
-            desired_arg = model.predict(embeddings[d[0]])
-            embeddings[d[1]] = (1-alpha)*np.array(embeddings[d[1]]) + alpha*(np.array(desired_arg)-np.array(embeddings[d[1]]))
+            desired_arg = model.predict(np.append(embeddings[d[0]],1))
+            if d_embed.has_key(d[1]):
+                d_embed[d[1]] = d_embed[d[1]] + (np.array(desired_arg)-np.array(embeddings[d[1]]))
+            else:
+                d_embed[d[1]] = (np.array(desired_arg)-np.array(embeddings[d[1]]))
             #renormalize to unit length
-            embeddings[d[1]] = embeddings[d[1]]/np.linalg.norm(embeddings[d[1]])
-            
-        all_models[i] = trainLinearModel(dep, embeddings)
+            #embeddings[d[1]] = embeddings[d[1]]/np.linalg.norm(embeddings[d[1]])
+        
+    for k in d_embed.keys():
+        d = alpha*np.sqrt(np.linalg.norm(d_embed[k]))
+        embeddings[k] = embeddings[k]+d*d_embed[k]
+        embeddings[k] = embeddings[k]/np.linalg.norm(embeddings[k])
+    
+    print np.linalg.norm(d_embed['book'])
+        
+    for i in xrange(0,4):
+        all_models[i] = trainLinearModel(all_dependencies[i], embeddings)
+        
         
     return embeddings, all_models
             
     
     
 def findClosestArgument(word, model, embeddings):
-    argument = model.predict(embeddings[word])
+    argument = model.predict(np.append(embeddings[word],1))
     print np.linalg.norm(argument)
     argument = argument/np.linalg.norm(argument)
 
@@ -93,10 +110,28 @@ def findClosestArgument(word, model, embeddings):
     
     return out
 
+def getMostFreqWords(all_deps):
+    counts = dict()
+    for dep in all_deps:
+        for d in dep:
+            if counts.has_key(d[1]):
+                counts[d[1]]=counts[d[1]]+1
+            else:
+                counts[d[1]]=1
+    most_freq = np.argsort(counts.values())[-700:]
+    
+    out = set()    
+    
+    for m in most_freq:
+        out.add(counts.keys()[m])
+        print counts.keys()[m], counts[counts.keys()[m]]
+        
+    return out
+        
 
     
 def conditionalError(word, argument, model, embeddings):
-    argument_predict = model.predict(embeddings[word])
+    argument_predict = model.predict(np.append(embeddings[word],1))
     argument_predict = argument_predict/np.linalg.norm(argument_predict)
     
     return np.exp(-np.linalg.norm(np.array(embeddings[argument])-np.array(argument_predict)))
@@ -210,9 +245,12 @@ def initialize():
     
     
 
-def prepareForSne(embeddings):
+def prepareForSne(all_deps, embeddings):
+    
+    words = getMostFreqWords(all_deps)
+    
     f = open('sne.txt','w')
 
-    for k in embeddings.keys():
-        stra = ' '.join(map(str, embeddings[k]))
-        print >>f, k, stra
+    for w in words:
+        stra = ' '.join(map(str, embeddings[w]))
+        print >>f, w, stra
