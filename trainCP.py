@@ -24,7 +24,7 @@ def trainLinearModel(data, embeddings):
     output1 = np.array(output1)
     print input1.shape,output1.shape
 
-    clf = linear_model.LinearRegression(normalize=True)
+    clf = linear_model.LinearRegression()
     clf.fit(input1, output1)
     
     return clf
@@ -69,7 +69,7 @@ def improveEmbeddings(all_dependencies, embeddings, all_models=None):
             desired_arg = model.predict(embeddings[d[0]])
             embeddings[d[1]] = (1-alpha)*np.array(embeddings[d[1]]) + alpha*(np.array(desired_arg)-np.array(embeddings[d[1]]))
             #renormalize to unit length
-            embeddings[d[1]] = embeddings[d[1]]/np.linalg.norm(embeddings[d[1]])
+            #embeddings[d[1]] = embeddings[d[1]]/np.linalg.norm(embeddings[d[1]])
             
         all_models[i] = trainLinearModel(dep, embeddings)
         
@@ -79,15 +79,22 @@ def improveEmbeddings(all_dependencies, embeddings, all_models=None):
     
 def findClosestArgument(word, model, embeddings):
     argument = model.predict(embeddings[word])
-    print np.linalg.norm(argument)
-    argument = argument/np.linalg.norm(argument)
+    #print np.linalg.norm(argument)
+#    argument = argument/np.linalg.norm(argument)
+    print np.linalg.norm(embeddings[word])
 
     matrix = embeddings.values()
 
-    listing = np.dot(matrix,argument)
+    # listing = np.dot(matrix,argument)
+    errors = []
+    for vec in embeddings.values():
+
+        err = np.linalg.norm(vec-argument)
+        errors.append(err)
+
     out = list()
 
-    best = np.argsort(listing)[-10:]
+    best = np.argsort(errors)[0:10]
     for b in best:
         out.append(embeddings.keys()[b])
     
@@ -97,7 +104,7 @@ def findClosestArgument(word, model, embeddings):
     
 def conditionalError(word, argument, model, embeddings):
     argument_predict = model.predict(embeddings[word])
-    argument_predict = argument_predict/np.linalg.norm(argument_predict)
+#    argument_predict = argument_predict/np.linalg.norm(argument_predict)
     
     return np.exp(-np.linalg.norm(np.array(embeddings[argument])-np.array(argument_predict)))
 
@@ -185,7 +192,7 @@ def loadEmbeddings():
     for word in A:
         w = word.split()
         #normalizing to unit length
-        embeds[w[0]] = np.double(w[1:])/np.linalg.norm(np.double(w[1:]))
+        embeds[w[0]] = np.double(w[1:])#/np.linalg.norm(np.double(w[1:]))
         
     return embeds
     
