@@ -56,12 +56,12 @@ def getGrammar(sentence):
 		RP_head = Nonterminal('RP_'+head)
 		for j in xrange(0, i):
 			arg = sentence[j]
-			prob = model.getProb(head, arg, direction='right')
+			prob = model.getProb(head, arg, direction='left')
 
 			grammar.productions().append(WeightedProduction(L1_head, [Nonterminal('Y_'+sentence[j]), LP_head],prob=prob))
 		for j in xrange(i+1, len(sentence)):
 			arg = sentence[j]
-			prob = model.getProb(head, arg, direction='left')
+			prob = model.getProb(head, arg, direction='right')
 			grammar.productions().append(WeightedProduction(R1_head, [RP_head, Nonterminal('Y_'+sentence[j])], prob=prob))
 
 	return grammar
@@ -151,6 +151,6 @@ def cyk(sentence):
 
 
 # sents = ["The big dog barks to this other dog".split(" "),
-sents = ["Ms. Haag plays Elianti".split(" ")]
+sents = ["The new rate will be payable".split(" ")]
 run_parser(sents)
 
