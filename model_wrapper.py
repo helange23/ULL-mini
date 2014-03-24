@@ -24,7 +24,7 @@ class model_wrapper:
         probs = getGMMProbs(self.GMM, argument, self.embeddings)
         return np.dot(probs,self.root_weights)
         
-    def getProb(self, head, argument, val='0', direction='left'):
+    def getProb(self, head, argument, val=0, direction='left'):
         if val==1 and direction == 'left':
             return getProb(head, argument, self.GMM, self.rep_vecs[0], self.embeddings)
         if val==0 and direction == 'left':
