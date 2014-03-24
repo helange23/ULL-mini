@@ -81,7 +81,7 @@ def splitSentence(sentence):
 		res.append(word + "_r")
 	return res
 
-def run_parser(corpus, n=1000):
+def run_parser(corpus, n=4000):
 	"""
 	Runs the parser on a corpus.
 	@param corpus: List of lists with input tokens
@@ -112,10 +112,8 @@ def run_parser(corpus, n=1000):
 		if total_sent == n:
 			break
 	P = ((right*1.0)/total) * 100.0
-	R = 100.0
 	print "baseline ", ((baseline*1.0)/total) * 100.0
-	print "precision", P
-	print "f1 ", (2*P*R)/(P+R)
+	print "precision ", P
 	return P
 
 def extractDepParse(tree, sentence):
