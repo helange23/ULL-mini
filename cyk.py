@@ -82,7 +82,7 @@ def splitSentence(sentence):
 		res.append(word + "_r")
 	return res
 
-def run_parser(corpus, n=10):
+def run_parser(corpus, n=50):
 	"""
 	Runs the parser on a corpus.
 	@param corpus: List of lists with input tokens
