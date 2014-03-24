@@ -102,8 +102,8 @@ def run_parser(corpus, n=10):
 		print len(deps), len(sentence)
 		for i in xrange(0, len(sentence)):
 			total += 1
-			print deps[i], item[i][1]
-			if deps[i] == item[i][1]:
+			print deps[i], item[i][1]+1
+			if deps[i] == item[i][1]+1:
 				right += 1
 		# cyk(sent)
 		total_sent += 1
