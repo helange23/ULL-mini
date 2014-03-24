@@ -148,7 +148,6 @@ def extractDepParse(tree, sentence):
 
 	for i, word in enumerate(sentence):
 		print word, deps[i]
-	print "\n"
 	return deps
 
 
