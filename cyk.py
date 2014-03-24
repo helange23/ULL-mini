@@ -102,13 +102,15 @@ def run_parser(corpus, n=10):
 		print len(deps), len(sentence)
 		for i in xrange(0, len(sentence)):
 			total += 1
+			print deps[i], item[i][1]
 			if deps[i] == item[i][1]:
 				right += 1
 		# cyk(sent)
 		total_sent += 1
 		if total_sent == n:
 			break
-	return (right/total) * 100
+	print right, total
+	return ((right*1.0)/total) * 100.0
 
 def extractDepParse(tree, sentence):
 	"""
