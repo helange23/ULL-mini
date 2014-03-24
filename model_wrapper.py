@@ -16,7 +16,7 @@ class model_wrapper:
         self.GMM = pickle.load(open('GMM200','rb'))
         self.rep_vecs = pickle.load(open('rep_model200','rb'))
         self.embeddings = loadEmbeddings()
-        self.root_weights = pickle.load(open('root200','rb'))
+        self.root_weights = pickle.load(open('fixed_root','rb'))
         print 'Model data loaded'
         
         
