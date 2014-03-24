@@ -200,6 +200,7 @@ def testModel():
 	print 'market', findBestArgs('market', GMM, rep_vecs[0], embeds)
 	print 'share', findBestArgs('share', GMM, rep_vecs[0], embeds)
 
+testModel()
 	# rep_vecs = list()
 	# print 'Initializing'
 	# embeds, all_deps = initialize()
