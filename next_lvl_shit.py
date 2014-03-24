@@ -127,41 +127,10 @@ def createDesignMatrix(corpus, embeddings):
 	good = 0
 	bad = 0
 
-
-	for sentence in corpus:
-		for i in xrange(0,len(sentence)):
-			dependency = sentence[i][1]
-			if not dependency == -1:
-
-				#make sure that both words have embeddings
-				if(embeddings.has_key(sentence[i][0]) and embeddings.has_key(sentence[dependency][0])):
-					good = good + 1
-
-					#left dependency
-					if i < dependency:
-						if isFirstLeftDependent(sentence,i):
-							leftstop.append([sentence[dependency][0], sentence[i][0]])
-						else:
-							leftgo.append([sentence[dependency][0], sentence[i][0]])
-					#right dependency
-					else:
-						if isLastRightDependent(sentence,i):
-							rightstop.append([sentence[dependency][0], sentence[i][0]])
-						else:
-							rightgo.append([sentence[dependency][0], sentence[i][0]])
-
-			else:
-				bad = bad + 1
-
-
-	#if for both words in a dependency pair there are embedding then it is a
-	#good pair otherwise a bad one
-	print 'bad',bad,'good',good
-
-	return [leftstop, leftgo, rightstop, rightgo]
-
-
-
+    return [leftstop, leftgo, rightstop, rightgo], root
+            
+        
+        
 def isFirstLeftDependent(sentence, idx):
 	dependency = sentence[idx][1]
 	for i in xrange(0,dependency):
@@ -245,68 +214,79 @@ def getMostProbRoots(root_weights, GMM, embeddings):
 	return out
 
 def visualizeCluster(rep_vec):
-	r = np.zeros((len(rep_vec[rep_vec.keys()[0]]),1))
-	for head in rep_vec.keys():
-		r = r + rep_vec[head]
-
-	return r[0]/len(rep_vec.keys())
-
+    r = np.zeros((len(rep_vec[rep_vec.keys()[0]]),1))
+    for head in rep_vec.keys():
+        r = r + rep_vec[head]
+        
+    return r[0]/len(rep_vec.keys())
+    
 def visualizeClusters(rep_vecs, root_weights, GMM):
-	plt.plot(visualizeCluster(rep_vecs[0]),label='Left stop')
-	plt.plot(visualizeCluster(rep_vecs[1]),label='Left go')
-	plt.plot(visualizeCluster(rep_vecs[2]),label='Right stop')
-	plt.plot(visualizeCluster(rep_vecs[3]),label='Right go')
-	plt.plot(GMM.weights_, label='GMM weights')
-	plt.plot(root_weights,label='Root')
-	plt.legend()
-
-
+    plt.plot(visualizeCluster(rep_vecs[0]),label='Left stop')
+    plt.plot(visualizeCluster(rep_vecs[1]),label='Left go')
+    plt.plot(visualizeCluster(rep_vecs[2]),label='Right stop')
+    plt.plot(visualizeCluster(rep_vecs[3]),label='Right go')
+    plt.plot(GMM.weights_, label='GMM weights')
+    plt.plot(root_weights,label='Root')
+    plt.legend()
+    
+    
 def getWordsInCluster(c, GMM, embeds):
-	out = list()
-	for k in embeds.keys():
-		if GMM.predict([embeds[k]]) == c:
-			out.append(k)
-
-	return out
-
+    out = list()
+    for k in embeds.keys():
+        if GMM.predict([embeds[k]]) == c:
+            out.append(k)
+            
+    return out
+    
 def visualizeRoots(root, root_weights, GMM, embeds):
-	word_hist = np.zeros(root_weights.size)
-	soft = np.zeros(root_weights.size)
-	for w in root:
-		soft = soft + GMM.predict_proba([embeds[w]])
-		word_hist[GMM.predict([embeds[w]])] = word_hist[GMM.predict([embeds[w]])] + 1
-	word_hist = word_hist/len(root)
-	soft = soft/sum(soft)
+    word_hist = np.zeros(root_weights.size)
+    soft = np.zeros(root_weights.size)
+    for w in root:
+        soft = soft + GMM.predict_proba([embeds[w]])
+        word_hist[GMM.predict([embeds[w]])] = word_hist[GMM.predict([embeds[w]])] + 1
+    word_hist = word_hist/len(root)
+    soft = soft/sum(soft)
+    
+    plt.plot(soft, label='Soft')
+    plt.plot(word_hist, label='True word cluster probs')
+    plt.plot(root_weights, label='Root weights')
+    plt.legend
+    return word_hist
+    
+def getSentencesWithKnownWords(corpus, embeddings):
+    out = list()
+    for sentence in corpus:
+        known_all = True
+        for dep in sentence:
+            if not embeddings.has_key(dep[0]):
+                known_all = False
+        if known_all:
+            out.append(sentence)
+    return out
+    
 
-	plt.plot(soft, label='Soft')
-	plt.plot(word_hist, label='True word cluster probs')
-	plt.plot(root_weights, label='Root weights')
-	plt.legend
-	return word_hist
 
+'''
+rep_vecs = list()
+print 'Initializing'
+embeds, all_deps, root = initialize()
 
-#
-#
-# rep_vecs = list()
-# print 'Initializing'
-# embeds, all_deps, root = initialize()
-#
-# print 'Embeddings and dependencies loaded, training GMM ...'
-#
-# g = getGMMClusters(embeds, 200)
-# pickle.dump(g,open('GMM200','wb'))
-#
-# print 'GMM trained, training root'
-# root_weights = trainRoot(root, embeds, g)
-# pickle.dump(rep_vecs,open('root200','wb'))
-#
-# print 'root trained, training rep vectors'
-#
-# for dep in all_deps:
-# 	rep_vecs.append(createResponsibilityVector(dep, embeds, g))
-# 	print 'Rep vectors created'
-#
-# print 'Saving'
-#
-# pickle.dump(rep_vecs,open('rep_model200','wb'))
-# print 'Done'
+print 'Embeddings and dependencies loaded, training GMM ...'
+
+g = getGMMClusters(embeds, 200)
+pickle.dump(g,open('GMM200','wb'))
+
+print 'GMM trained, training root'
+root_weights = trainRoot(root, embeds, g)
+pickle.dump(rep_vecs,open('root200','wb'))
+
+print 'root trained, training rep vectors'
+
+for dep in all_deps:
+    rep_vecs.append(createResponsibilityVector(dep, embeds, g))
+    print 'Rep vectors created'
+    
+print 'Saving'
+    
+pickle.dump(rep_vecs,open('rep_model200','wb'))
+print 'Done'''
