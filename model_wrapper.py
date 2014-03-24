@@ -15,7 +15,7 @@ class model_wrapper:
         print 'Loading model data - this may take a while'
         self.GMM = pickle.load(open('GMM200','rb'))
         self.rep_vecs = pickle.load(open('rep_model200','rb'))
-        self.embeds = loadEmbeddings()
+        self.embeddings = loadEmbeddings()
         #self.root_weights = pickle.load(open('root200','rb'))
         print 'Model data loaded'
         
@@ -24,7 +24,7 @@ class model_wrapper:
         probs = getGMMProbs(self.GMM, argument, self.embeddings)
         return np.dot(probs,self.root_weights)
         
-    def getProb(self, head, argument, val='0', direction='left'):
+    def getProb(self, head, argument, val=0, direction='left'):
         if val==1 and direction == 'left':
             return getProb(head, argument, self.GMM, self.rep_vecs[0], self.embeddings)
         if val==0 and direction == 'left':
@@ -35,6 +35,20 @@ class model_wrapper:
             return getProb(head, argument, self.GMM, self.rep_vecs[3], self.embeddings)
         else:
             print 'Something went wrong - cannot obtain a probability, returning 0'
+            
+            
+    def findBestArgs(self, head, model=0):
+        probs = list()
+        for arg in self.embeddings.keys():
+            probs.append(getProb(head,arg,self.GMM, self.rep_vecs[model],self.embeddings))
+            
+        best = np.argsort(probs)[-10:]
+        
+        out = list()
+        for b in best:
+            out.append((self.embeddings.keys()[b],probs[b]))
+        
+        return out
         
         
         
@@ -74,3 +88,8 @@ def loadEmbeddings():
         embeds[w[0]] = np.double(w[1:])/np.linalg.norm(np.double(w[1:]))
         
     return embeds
+    
+    
+m = model_wrapper()
+print 'company leftstop', m.findBestArgs('company')
+print 'company leftgo', m.findBestArgs('company',model=1)
