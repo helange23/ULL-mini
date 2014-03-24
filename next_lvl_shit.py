@@ -191,8 +191,8 @@ def deleteUnusedWords(embeddings, all_deps):
 
 def testModel():
 	embeds, all_deps = initialize()
-	GMM = pickle.load('GMM100', 'rb')
-	rep_vecs = pickle.load('rep_model100', 'rb')
+	GMM = pickle.load(open('GMM100', 'rb'))
+	rep_vecs = pickle.load(open('rep_model100', 'rb'))
 	print 'company', findBestArgs('company', GMM, rep_vecs[0], embeds)
 	print 'buy', findBestArgs('buy', GMM, rep_vecs[0], embeds)
 	print 'buys', findBestArgs('buys', GMM, rep_vecs[0], embeds)
