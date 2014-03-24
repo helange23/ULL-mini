@@ -35,6 +35,20 @@ class model_wrapper:
             return getProb(head, argument, self.GMM, self.rep_vecs[3], self.embeddings)
         else:
             print 'Something went wrong - cannot obtain a probability, returning 0'
+            
+            
+    def findBestArgs(self, head, model=0):
+        probs = list()
+        for arg in embeddings.keys():
+            probs.append(getProb(head,arg,self.GMM, self.rep_vec[model],self.embeddings))
+            
+        best = np.argsort(probs)[-10:]
+        
+        out = list()
+        for b in best:
+            out.append((self.embeddings.keys()[b],probs[b]))
+        
+        return out
         
         
         
@@ -74,3 +88,8 @@ def loadEmbeddings():
         embeds[w[0]] = np.double(w[1:])/np.linalg.norm(np.double(w[1:]))
         
     return embeds
+    
+    
+m = model_wrapper()
+print 'company leftstop', m.findBestArgs('company')
+print 'company leftgo', m.findBestArgs('company',model=1)
