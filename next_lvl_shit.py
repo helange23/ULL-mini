@@ -109,7 +109,7 @@ def createResponsibilityVector(dep, embeddings, GMM):
 def initialize():
     embeddings = loadEmbeddings()
     all_deps, root = createDesignMatrix(loadCorpus(),embeddings)
-    deleteUnusedWords(embeddings, all_deps)
+    deleteUnusedWords(embeddings, all_deps, root)
     
     return embeddings, all_deps, root
     
