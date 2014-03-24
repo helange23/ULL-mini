@@ -274,9 +274,20 @@ def visualizeRoots(root, root_weights, GMM, embeds):
     plt.legend
     return word_hist
     
+def getSentencesWithKnownWords(corpus, embeddings):
+    out = list()
+    for sentence in corpus:
+        known_all = True
+        for dep in sentence:
+            if not embeddings.has_key(dep[0]):
+                known_all = False
+        if known_all:
+            out.append(sentence)
+    return out
+    
 
 
-
+'''
 rep_vecs = list()
 print 'Initializing'
 embeds, all_deps, root = initialize()
@@ -299,4 +310,4 @@ for dep in all_deps:
 print 'Saving'
     
 pickle.dump(rep_vecs,open('rep_model200','wb'))
-print 'Done'
+print 'Done'''
