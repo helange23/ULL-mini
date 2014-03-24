@@ -7,6 +7,7 @@ Created on Fri Mar 21 11:31:32 2014
 
 import numpy as np
 from sklearn import mixture, linear_model
+import sys
 #from scipy.stats import multivariate_normal
 import pickle
 
@@ -51,10 +52,21 @@ def getProb(head, argument, GMM, rep_vec, embeddings):
     probs = getGMMProbs(GMM,argument,embeddings)
     #print sum(probs)
     #print sum(rep_vec[head])
-    return np.dot(probs,rep_vec[head][0])
+    return np.dot(probs,rep_vec[head])
     
     
 def createResponsibilityVector(dep, embeddings, GMM):
+    reps = dict()
+    for d in dep:
+        if reps.has_key(d[0]):
+            reps[d[0]] = reps[d[0]] + getGMMProbs(GMM, d[1], embeddings)
+        else:
+            reps[d[0]] = getGMMProbs(GMM, d[1], embeddings)
+            
+    for head in reps.keys():
+        reps[head]=reps[head]/sum(reps[head])
+    
+    '''
     h_a = dict()
     for d in dep:
         if h_a.has_key(d[0]):
@@ -64,6 +76,7 @@ def createResponsibilityVector(dep, embeddings, GMM):
             h_a[d[0]].append(d[1])
     
     rep_vecs = dict()
+    print 'length', len(h_a.keys())
     for w in h_a.keys():
         #regress_input = list()
         test = np.zeros((GMM.n_components,1))
@@ -77,8 +90,15 @@ def createResponsibilityVector(dep, embeddings, GMM):
 
         #print test/sum(test)
         rep_vecs[w]=test/sum(test)
+    '''
+    
+    #print 'Size of h_a', sys.getsizeof(h_a)
+    #print 'Size of rep_vecs', sys.getsizeof(rep_vecs)
+    #del h_a
+    print 'Size of rep_vecs', sys.getsizeof(rep_vecs)
+    print 'Length', len(reps.keys())
             
-    return rep_vecs
+    return reps
     
     
 def initialize():
@@ -188,13 +208,15 @@ def deleteUnusedWords(embeddings, all_deps):
         if not k in unique_words:
             del embeddings[k]
 
+
+
 rep_vecs = list()
 print 'Initializing'
 embeds, all_deps = initialize()
 print 'Embeddings and dependencies loaded, training GMM ...'
 
-g = getGMMClusters(embeds, 100)
-pickle.dump(g,open('GMM100','wb'))
+g = getGMMClusters(embeds, 200)
+pickle.dump(g,open('GMM200','wb'))
 
 print 'GMM trained, creating rep vectors'
 
@@ -204,6 +226,6 @@ for dep in all_deps:
     
 print 'Saving'
     
-pickle.dump(rep_vecs,open('rep_model100','wb'))
+pickle.dump(rep_vecs,open('rep_model200','wb'))
 print 'Done'
-            
+       
