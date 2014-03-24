@@ -6,9 +6,7 @@ Created on Fri Mar 21 11:31:32 2014
 """
 
 import numpy as np
-from sklearn import mixture, linear_model
-import sys
-#from scipy.stats import multivariate_normal
+from sklearn import mixture
 import pickle
 import matplotlib.pyplot as plt
 
@@ -59,7 +57,7 @@ def trainRoot(root, embeddings, GMM):
     out = getGMMProbs(GMM, root[0], embeddings)
     #del root[0]
     for arg in root:
-        out = out + getGMMProbs(GMM, arg, embeddings)
+        out = out + GMM.predict_proba([embeddings[arg]])
         
     return out/sum(out)
     
@@ -68,9 +66,9 @@ def createResponsibilityVector(dep, embeddings, GMM):
     reps = dict()
     for d in dep:
         if reps.has_key(d[0]):
-            reps[d[0]] = reps[d[0]] + getGMMProbs(GMM, d[1], embeddings)
+            reps[d[0]] = reps[d[0]] + GMM.predict_proba([embeddings[d[1]]])[0]
         else:
-            reps[d[0]] = getGMMProbs(GMM, d[1], embeddings)
+            reps[d[0]] = GMM.predict_proba([embeddings[d[1]]])[0]
             
     for head in reps.keys():
         reps[head]=reps[head]/sum(reps[head])
@@ -104,8 +102,6 @@ def createResponsibilityVector(dep, embeddings, GMM):
     #print 'Size of h_a', sys.getsizeof(h_a)
     #print 'Size of rep_vecs', sys.getsizeof(rep_vecs)
     #del h_a
-    print 'Size of rep_vecs', sys.getsizeof(rep_vecs)
-    print 'Length', len(reps.keys())
             
     return reps
     
@@ -115,7 +111,7 @@ def initialize():
     all_deps, root = createDesignMatrix(loadCorpus(),embeddings)
     deleteUnusedWords(embeddings, all_deps)
     
-    return embeddings, all_deps
+    return embeddings, all_deps, root
     
     
 def createDesignMatrix(corpus, embeddings):
@@ -243,11 +239,12 @@ def visualizeCluster(rep_vec):
         
     return r[0]/len(rep_vec.keys())
     
-def visualizeClusters(rep_vecs, root_weights):
+def visualizeClusters(rep_vecs, root_weights, GMM):
     plt.plot(visualizeCluster(rep_vecs[0]),label='Left stop')
     plt.plot(visualizeCluster(rep_vecs[1]),label='Left go')
     plt.plot(visualizeCluster(rep_vecs[2]),label='Right stop')
     plt.plot(visualizeCluster(rep_vecs[3]),label='Right go')
+    plt.plot(GMM.weights_, label='GMM weights')
     plt.plot(root_weights,label='Root')
     plt.legend()
     
@@ -260,18 +257,37 @@ def getWordsInCluster(c, GMM, embeds):
             
     return out
     
+def visualizeRoots(root, root_weights, GMM, embeds):
+    word_hist = np.zeros(root_weights.size)
+    soft = np.zeros(root_weights.size)
+    for w in root:
+        soft = soft + GMM.predict_proba([embeds[w]])
+        word_hist[GMM.predict([embeds[w]])] = word_hist[GMM.predict([embeds[w]])] + 1
+    word_hist = word_hist/len(root)
+    soft = soft/sum(soft)
+    
+    plt.plot(soft, label='Soft')
+    plt.plot(word_hist, label='True word cluster probs')
+    plt.plot(root_weights, label='Root weights')
+    plt.legend
+    return word_hist
+    
 
 
-'''
+
 rep_vecs = list()
 print 'Initializing'
-embeds, all_deps = initialize()
+embeds, all_deps, root = initialize()
 print 'Embeddings and dependencies loaded, training GMM ...'
 
 g = getGMMClusters(embeds, 200)
 pickle.dump(g,open('GMM200','wb'))
 
-print 'GMM trained, creating rep vectors'
+print 'GMM trained, training root'
+root_weights = trainRoot(root, embeds, g)
+pickle.dump(rep_vecs,open('root200','wb'))
+
+print 'root trained, training rep vectors'
 
 for dep in all_deps:
     rep_vecs.append(createResponsibilityVector(dep, embeds, g))
@@ -281,4 +297,3 @@ print 'Saving'
     
 pickle.dump(rep_vecs,open('rep_model200','wb'))
 print 'Done'
-'''       
