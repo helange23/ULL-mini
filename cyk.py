@@ -8,6 +8,7 @@ from nltk.grammar import WeightedProduction
 from nltk.grammar import induce_pcfg
 from nltk import Nonterminal
 from model_wrapper import model_wrapper
+from next_lvl_shit import loadCorpus
 from nltk.tree import Tree
 import re
 
@@ -80,26 +81,33 @@ def splitSentence(sentence):
 		res.append(word + "_r")
 	return res
 
-def run_parser(corpus):
+def run_parser(corpus, gold):
 	"""
 	Runs the parser on a corpus.
 	@param corpus: List of lists with input tokens
 	"""
+	total = 0
+	right = 0
 	for sentence in corpus:
+		sentence = [word[0] for word in sentence]
 		grammar = getGrammar(sentence)
 		parser = Parser(grammar)
 		sent = splitSentence(sentence)
 		tree = parser.parse(sent)
 		# tree.draw()
 		# print tree.pprint(margin=30)
-		extractDepParse(tree, sentence)
-
+		deps = extractDepParse(tree, sentence)
+		for i in xrange(0, len(sentence)):
+			total += 1
+			if deps[i] == gold[i]:
+				right += 1
 		# cyk(sent)
+	return (right/total) * 100
 
 def extractDepParse(tree, sentence):
 	"""
 	Transforms a PCFG parsed tree in DMV split head encoding back to a dependency definition.
-	Has issues with the same word occuring twice in the sentence :/
+	Has issues with the same word occurring twice in the sentence :/
 	@param tree: NLTK tree
 	@param sentence: The original input sentence
 	"""
@@ -130,6 +138,7 @@ def extractDepParse(tree, sentence):
 	for i, word in enumerate(sentence):
 		print word, deps[i]
 	print "\n"
+	return deps
 
 
 def cyk(sentence):
@@ -153,6 +162,7 @@ def cyk(sentence):
 
 
 # sents = ["The big dog barks to this other dog".split(" "),
-sents = ["The new rate will be payable".split(" ")]
-run_parser(sents)
+# sents = ["The new rate will be payable".split(" ")]
+sents, gold = loadCorpus(size=1)
+run_parser(sents, gold)
 
