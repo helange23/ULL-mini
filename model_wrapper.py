@@ -29,13 +29,13 @@ class model_wrapper:
         
     def getProb(self, head, argument, val=0, direction='left'):
         if val==1 and direction == 'left':
-            return getProb(head, argument, self.GMM, self.rep_vecs[0], self.embeddings)
+            return getProb1(head, argument, self.GMM, self.rep_vecs[0], self.embeddings)
         if val==0 and direction == 'left':
-            return getProb(head, argument, self.GMM, self.rep_vecs[1], self.embeddings)
+            return getProb1(head, argument, self.GMM, self.rep_vecs[1], self.embeddings)
         if val==1 and direction == 'right':
-            return getProb(head, argument, self.GMM, self.rep_vecs[2], self.embeddings)
+            return getProb1(head, argument, self.GMM, self.rep_vecs[2], self.embeddings)
         if val==0 and direction == 'right':
-            return getProb(head, argument, self.GMM, self.rep_vecs[3], self.embeddings)
+            return getProb1(head, argument, self.GMM, self.rep_vecs[3], self.embeddings)
         else:
             print 'Something went wrong - cannot obtain a probability, returning 0'
             
@@ -43,7 +43,7 @@ class model_wrapper:
     def findBestArgs(self, head, model=0):
         probs = list()
         for arg in self.embeddings.keys():
-            probs.append(getProb(head,arg,self.GMM, self.rep_vecs[model],self.embeddings))
+            probs.append(getProb1(head,arg,self.GMM, self.rep_vecs[model],self.embeddings))
             
         best = np.argsort(probs)[-10:]
         
@@ -71,12 +71,22 @@ def getGMMProbs(GMM,argument,embeddings):
     
     
     
-def getProb(head, argument, GMM, rep_vec, embeddings):
+def getProb2(head, argument, GMM, rep_vec, embeddings):
     probs = getGMMProbs(GMM,argument,embeddings)
     if rep_vec.has_key(head):
         return np.dot(probs,rep_vec[head])
     else:
         print head, 'doesnt have this kind of dep, returning 0'
+        return 0
+        
+def getProb1(head, argument, GMM, rep_vec, embeddings):
+    #probs = getGMMProbs(GMM,argument,embeddings)
+    if rep_vec.has_key(head):
+        probs = GMM.predict_proba([embeddings[argument]])
+    #print sum(probs)
+    #print sum(rep_vec[head])
+        return np.dot(probs,rep_vec[head])[0]
+    else:
         return 0
         
         
