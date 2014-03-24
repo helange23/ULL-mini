@@ -71,15 +71,15 @@ def getGMMProbs(GMM,argument,embeddings):
     
     
     
-def getProb2(head, argument, GMM, rep_vec, embeddings):
+def getProb1(head, argument, GMM, rep_vec, embeddings):
     probs = getGMMProbs(GMM,argument,embeddings)
     if rep_vec.has_key(head):
         return np.dot(probs,rep_vec[head])
     else:
-        print head, 'doesnt have this kind of dep, returning 0'
+        #print head, 'doesnt have this kind of dep, returning 0'
         return 0
         
-def getProb1(head, argument, GMM, rep_vec, embeddings):
+def getProb2(head, argument, GMM, rep_vec, embeddings):
     #probs = getGMMProbs(GMM,argument,embeddings)
     if rep_vec.has_key(head):
         probs = GMM.predict_proba([embeddings[argument]])
