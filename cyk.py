@@ -97,7 +97,7 @@ def run_parser(corpus, n=1000):
 		sent = splitSentence(sentence)
 		tree = parser.parse(sent)
 		# tree.draw()
-		# print tree.pprint(margin=30)
+		print tree.pprint(margin=10)
 		deps = extractDepParse(tree, sentence)
 		print len(deps), len(sentence)
 		for i in xrange(0, len(sentence)):
