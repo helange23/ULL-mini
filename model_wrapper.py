@@ -24,7 +24,7 @@ class model_wrapper:
         if self.embeddings.has_key(argument):
             probs = getGMMProbs(self.GMM, argument, self.embeddings)
             print np.shape(probs), np.shape(self.root_weights)
-            return np.dot(probs,self.root_weights)
+            return np.dot(probs,np.transpose(self.root_weights))
         else:
             return 0
 
