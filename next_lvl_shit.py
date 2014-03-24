@@ -10,6 +10,7 @@ from sklearn import mixture, linear_model
 import sys
 #from scipy.stats import multivariate_normal
 import pickle
+import matplotlib.pyplot as plt
 
 def getGMMClusters(embeddings, k=50):
     g = mixture.GMM(n_components=k,covariance_type='tied')
@@ -53,6 +54,14 @@ def getProb(head, argument, GMM, rep_vec, embeddings):
     #print sum(probs)
     #print sum(rep_vec[head])
     return np.dot(probs,rep_vec[head])
+    
+def trainRoot(root, embeddings, GMM):
+    out = getGMMProbs(GMM, root[0], embeddings)
+    #del root[0]
+    for arg in root:
+        out = out + getGMMProbs(GMM, arg, embeddings)
+        
+    return out/sum(out)
     
     
 def createResponsibilityVector(dep, embeddings, GMM):
@@ -103,7 +112,7 @@ def createResponsibilityVector(dep, embeddings, GMM):
     
 def initialize():
     embeddings = loadEmbeddings()
-    all_deps = createDesignMatrix(loadCorpus(),embeddings)
+    all_deps, root = createDesignMatrix(loadCorpus(),embeddings)
     deleteUnusedWords(embeddings, all_deps)
     
     return embeddings, all_deps
@@ -115,6 +124,7 @@ def createDesignMatrix(corpus, embeddings):
     leftgo = list()
     rightstop = list()
     rightgo = list()
+    root = list()
     
     good = 0
     bad = 0
@@ -143,14 +153,15 @@ def createDesignMatrix(corpus, embeddings):
                             rightgo.append([sentence[dependency][0], sentence[i][0]])
                 
             else:
-                bad = bad + 1
+                if embeddings.has_key(sentence[i][0]):
+                    root.append(sentence[i][0])
 
             
     #if for both words in a dependency pair there are embedding then it is a
     #good pair otherwise a bad one
     print 'bad',bad,'good',good
 
-    return [leftstop, leftgo, rightstop, rightgo]
+    return [leftstop, leftgo, rightstop, rightgo], root
             
         
         
@@ -207,9 +218,51 @@ def deleteUnusedWords(embeddings, all_deps):
     for k in embeddings.keys():
         if not k in unique_words:
             del embeddings[k]
+            
+def getMostProbRoots(root_weights, GMM, embeddings):
+    probs = list()
+    for argument in embeddings.keys():
+        prob = getGMMProbs(GMM, argument, embeddings)
+        prob = np.dot(prob,root_weights)
+        probs.append(prob)
+        
+    best = np.argsort(probs)[-10:]
+    
+    print best
+    
+    out = list()
+    for b in best:
+        out.append((embeddings.keys()[b],probs[b]))
+    
+    return out
+    
+def visualizeCluster(rep_vec):
+    r = np.zeros((len(rep_vec[rep_vec.keys()[0]]),1))
+    for head in rep_vec.keys():
+        r = r + rep_vec[head]
+        
+    return r[0]/len(rep_vec.keys())
+    
+def visualizeClusters(rep_vecs, root_weights):
+    plt.plot(visualizeCluster(rep_vecs[0]),label='Left stop')
+    plt.plot(visualizeCluster(rep_vecs[1]),label='Left go')
+    plt.plot(visualizeCluster(rep_vecs[2]),label='Right stop')
+    plt.plot(visualizeCluster(rep_vecs[3]),label='Right go')
+    plt.plot(root_weights,label='Root')
+    plt.legend()
+    
+    
+def getWordsInCluster(c, GMM, embeds):
+    out = list()
+    for k in embeds.keys():
+        if GMM.predict([embeds[k]]) == c:
+            out.append(k)
+            
+    return out
+    
 
 
-
+'''
 rep_vecs = list()
 print 'Initializing'
 embeds, all_deps = initialize()
@@ -228,4 +281,4 @@ print 'Saving'
     
 pickle.dump(rep_vecs,open('rep_model200','wb'))
 print 'Done'
-       
+'''       
