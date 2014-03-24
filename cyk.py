@@ -29,8 +29,8 @@ def getGrammar(sentence):
 	@return: NLTK grammar with weighted productions.
 	"""
 	productions = []
+	S = Nonterminal('S')
 	for i, head in enumerate(sentence):
-		S = Nonterminal('S')
 		Y_head = Nonterminal('Y_'+head)
 		L_head = Nonterminal('L_'+head)
 		R_head = Nonterminal('R_'+head)
@@ -38,7 +38,6 @@ def getGrammar(sentence):
 		R1_head = Nonterminal('R1_'+head)
 		LP_head = Nonterminal('LP_'+head)
 		RP_head = Nonterminal('RP_'+head)
-		productions.append(Production(S, [Y_head]))
 		productions.append(Production(Y_head, [L_head, R_head]))
 		productions.append(Production(L_head, [head+'_l']))
 		productions.append(Production(R_head, [head+'_r']))
@@ -54,6 +53,9 @@ def getGrammar(sentence):
 		R1_head = Nonterminal('R1_'+head)
 		LP_head = Nonterminal('LP_'+head)
 		RP_head = Nonterminal('RP_'+head)
+		Y_head = Nonterminal('Y_'+head)
+
+		grammar.productions().append(WeightedProduction(S, [Y_head]), prob=model.getRootProb(head))
 		for j in xrange(0, i):
 			arg = sentence[j]
 			prob = model.getProb(head, arg, direction='left')
