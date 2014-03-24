@@ -91,7 +91,3 @@ def loadEmbeddings():
         
     return embeds
     
-    
-m = model_wrapper()
-print 'company leftstop', m.findBestArgs('company')
-print 'company leftgo', m.findBestArgs('company',model=1)
