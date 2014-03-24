@@ -125,7 +125,7 @@ def extractDepParse(tree, sentence):
 	@param tree: NLTK tree
 	@param sentence: The original input sentence
 	"""
-	tree = tree.pprint(margin=30)
+	tree = tree.pprint(margin=10)
 	deps = [None for i in xrange(0, len(sentence))]
 	already_assigned = {}
 	stack = []
