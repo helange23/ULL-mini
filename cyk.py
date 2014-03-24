@@ -150,7 +150,7 @@ def cyk(sentence):
 				# chart[min][mid][]
 
 
-sents = ["The big dog barks to this other dog".split(" "),
-		 "Ms. Haag plays Elianti".split(" ")]
+# sents = ["The big dog barks to this other dog".split(" "),
+sents = ["Ms. Haag plays Elianti".split(" ")]
 run_parser(sents)
 
