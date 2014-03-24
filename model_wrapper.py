@@ -15,7 +15,7 @@ class model_wrapper:
         print 'Loading model data - this may take a while'
         self.GMM = pickle.load(open('GMM200','rb'))
         self.rep_vecs = pickle.load(open('rep_model200','rb'))
-        self.embeds = loadEmbeddings()
+        self.embeddings = loadEmbeddings()
         #self.root_weights = pickle.load(open('root200','rb'))
         print 'Model data loaded'
         
