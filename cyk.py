@@ -7,7 +7,7 @@ from nltk.grammar import Production
 from nltk.grammar import WeightedProduction
 from nltk.grammar import induce_pcfg
 from nltk import Nonterminal
-import model_wrapper
+from model_wrapper import model_wrapper
 from nltk.tree import Tree
 import re
 
