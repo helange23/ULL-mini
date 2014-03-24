@@ -293,17 +293,18 @@ def printAllArguments(head, dep):
 
 # rep_vecs = list()
 # print 'Initializing'
-# embeds, all_deps, root = initialize()
+embeds, all_deps, root = initialize()
 #
 # print 'Embeddings and dependencies loaded, training GMM ...'
 #
-# k=500
+k=500
 # g = getGMMClusters(embeds, k)
 # pickle.dump(g,open('GMM'+str(k),'wb'))
+g = pickle.load(open('GMM'+str(k),'rb'))
 #
 # print 'GMM trained, training root'
-# root_weights = trainRoot(root, embeds, g)
-# pickle.dump(rep_vecs,open('root'+str(k),'wb'))
+root_weights = trainRoot(root, embeds, g)
+pickle.dump(root_weights,open('root'+str(k),'wb'))
 #
 # print 'root trained, training rep vectors'
 #
