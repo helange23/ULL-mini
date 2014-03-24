@@ -81,7 +81,7 @@ def splitSentence(sentence):
 		res.append(word + "_r")
 	return res
 
-def run_parser(corpus, n=4000):
+def run_parser(corpus, n=100):
 	"""
 	Runs the parser on a corpus.
 	@param corpus: List of lists with input tokens
@@ -99,7 +99,6 @@ def run_parser(corpus, n=4000):
 		# tree.draw()
 		# print tree.pprint(margin=30)
 		deps = extractDepParse(tree, sentence)
-		print len(deps), len(sentence)
 		for i in xrange(0, len(sentence)):
 			total += 1
 			print deps[i], item[i][1]+1
@@ -139,11 +138,11 @@ def extractDepParse(tree, sentence):
 		if line.strip()[0:3] == '(Y_' and len(stack) > 0:
 			y = line.strip()[3:]
 			dep_index = stack.pop()
+
 			y_index = sentence.index(y)
-			if already_assigned.has_key(y_index):
+			while already_assigned.has_key(y_index):
 				y_index = sentence.index(y, y_index+1)
-			else:
-				already_assigned[y_index] = True
+			already_assigned[y_index] = True
 
 			deps[y_index] = dep_index
 
@@ -175,7 +174,7 @@ def cyk(sentence):
 
 # sents = ["The big dog barks to this other dog".split(" "),
 # sents = ["The new rate will be payable".split(" ")]
-model = model_wrapper(k=500)
+model = model_wrapper(k=200)
 sents = loadCorpus()
 sents = getSentencesWithKnownWords(sents, model.embeddings)
 run_parser(sents)
