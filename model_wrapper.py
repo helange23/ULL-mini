@@ -70,9 +70,11 @@ def getGMMProbs(GMM,argument,embeddings):
     
 def getProb(head, argument, GMM, rep_vec, embeddings):
     probs = getGMMProbs(GMM,argument,embeddings)
-    #print sum(probs)
-    #print sum(rep_vec[head])
-    return np.dot(probs,rep_vec[head])       
+    if rep_vec.has_key(head):
+        return np.dot(probs,rep_vec[head])
+    else:
+        print head, 'doesnt have this kind of dep, returning 0'
+        return 0
         
         
         
