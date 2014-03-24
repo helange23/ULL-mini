@@ -110,7 +110,7 @@ def createResponsibilityVector(dep, embeddings, GMM):
 
 def initialize():
 	embeddings = loadEmbeddings()
-	all_deps, root = createDesignMatrix(loadCorpus(),embeddings)
+	all_deps, root = createDesignMatrix(loadCorpus()[0],embeddings)
 	deleteUnusedWords(embeddings, all_deps, root)
 
 	return embeddings, all_deps, root
@@ -127,10 +127,42 @@ def createDesignMatrix(corpus, embeddings):
 	good = 0
 	bad = 0
 
-    return [leftstop, leftgo, rightstop, rightgo], root
-            
-        
-        
+
+	for sentence in corpus:
+		for i in xrange(0,len(sentence)):
+			dependency = sentence[i][1]
+			if not dependency == -1:
+
+				#make sure that both words have embeddings
+				if(embeddings.has_key(sentence[i][0]) and embeddings.has_key(sentence[dependency][0])):
+					good = good + 1
+
+					#left dependency
+					if i < dependency:
+						if isFirstLeftDependent(sentence,i):
+							leftstop.append([sentence[dependency][0], sentence[i][0]])
+						else:
+							leftgo.append([sentence[dependency][0], sentence[i][0]])
+					#right dependency
+					else:
+						if isLastRightDependent(sentence,i):
+							rightstop.append([sentence[dependency][0], sentence[i][0]])
+						else:
+							rightgo.append([sentence[dependency][0], sentence[i][0]])
+
+			else:
+				if embeddings.has_key(sentence[i][0]):
+					root.append(sentence[i][0])
+
+
+	#if for both words in a dependency pair there are embedding then it is a
+	#good pair otherwise a bad one
+	print 'bad',bad,'good',good
+
+	return [leftstop, leftgo, rightstop, rightgo], root
+
+
+
 def isFirstLeftDependent(sentence, idx):
 	dependency = sentence[idx][1]
 	for i in xrange(0,dependency):
@@ -146,29 +178,20 @@ def isLastRightDependent(sentence, idx):
 	return True
 
 
-def loadCorpus(size=10):
+def loadCorpus():
 	#loads the corpus as a list of lists
 	#every inner list denotes a sentence
 	sentences = list()
-	gold = list()
 	A = open('test','r')
 	s = list()
-	g = list()
-	i = 0
 	for line in A:
 		if line == '\n':
-			i+= 1
 			sentences.append(s)
-			gold.append(g)
 			s = list()
-			g = list()
-			if size == i:
-				break
 		else:
 			ls = line.split()
 			s.append([ls[1].replace('"',''), int(ls[6])-1])
-			g.append(int(ls[6]))
-	return sentences, gold
+	return sentences
 
 
 def loadEmbeddings():
@@ -214,56 +237,56 @@ def getMostProbRoots(root_weights, GMM, embeddings):
 	return out
 
 def visualizeCluster(rep_vec):
-    r = np.zeros((len(rep_vec[rep_vec.keys()[0]]),1))
-    for head in rep_vec.keys():
-        r = r + rep_vec[head]
-        
-    return r[0]/len(rep_vec.keys())
-    
+	r = np.zeros((len(rep_vec[rep_vec.keys()[0]]),1))
+	for head in rep_vec.keys():
+		r = r + rep_vec[head]
+
+	return r[0]/len(rep_vec.keys())
+
 def visualizeClusters(rep_vecs, root_weights, GMM):
-    plt.plot(visualizeCluster(rep_vecs[0]),label='Left stop')
-    plt.plot(visualizeCluster(rep_vecs[1]),label='Left go')
-    plt.plot(visualizeCluster(rep_vecs[2]),label='Right stop')
-    plt.plot(visualizeCluster(rep_vecs[3]),label='Right go')
-    plt.plot(GMM.weights_, label='GMM weights')
-    plt.plot(root_weights,label='Root')
-    plt.legend()
-    
-    
+	plt.plot(visualizeCluster(rep_vecs[0]),label='Left stop')
+	plt.plot(visualizeCluster(rep_vecs[1]),label='Left go')
+	plt.plot(visualizeCluster(rep_vecs[2]),label='Right stop')
+	plt.plot(visualizeCluster(rep_vecs[3]),label='Right go')
+	plt.plot(GMM.weights_, label='GMM weights')
+	plt.plot(root_weights,label='Root')
+	plt.legend()
+
+
 def getWordsInCluster(c, GMM, embeds):
-    out = list()
-    for k in embeds.keys():
-        if GMM.predict([embeds[k]]) == c:
-            out.append(k)
-            
-    return out
-    
+	out = list()
+	for k in embeds.keys():
+		if GMM.predict([embeds[k]]) == c:
+			out.append(k)
+
+	return out
+
 def visualizeRoots(root, root_weights, GMM, embeds):
-    word_hist = np.zeros(root_weights.size)
-    soft = np.zeros(root_weights.size)
-    for w in root:
-        soft = soft + GMM.predict_proba([embeds[w]])
-        word_hist[GMM.predict([embeds[w]])] = word_hist[GMM.predict([embeds[w]])] + 1
-    word_hist = word_hist/len(root)
-    soft = soft/sum(soft)
-    
-    plt.plot(soft, label='Soft')
-    plt.plot(word_hist, label='True word cluster probs')
-    plt.plot(root_weights, label='Root weights')
-    plt.legend
-    return word_hist
-    
+	word_hist = np.zeros(root_weights.size)
+	soft = np.zeros(root_weights.size)
+	for w in root:
+		soft = soft + GMM.predict_proba([embeds[w]])
+		word_hist[GMM.predict([embeds[w]])] = word_hist[GMM.predict([embeds[w]])] + 1
+	word_hist = word_hist/len(root)
+	soft = soft/sum(soft)
+
+	plt.plot(soft, label='Soft')
+	plt.plot(word_hist, label='True word cluster probs')
+	plt.plot(root_weights, label='Root weights')
+	plt.legend
+	return word_hist
+
 def getSentencesWithKnownWords(corpus, embeddings):
-    out = list()
-    for sentence in corpus:
-        known_all = True
-        for dep in sentence:
-            if not embeddings.has_key(dep[0]):
-                known_all = False
-        if known_all:
-            out.append(sentence)
-    return out
-    
+	out = list()
+	for sentence in corpus:
+		known_all = True
+		for dep in sentence:
+			if not embeddings.has_key(dep[0]):
+				known_all = False
+		if known_all:
+			out.append(sentence)
+	return out
+
 
 
 '''

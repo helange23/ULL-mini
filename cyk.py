@@ -9,6 +9,7 @@ from nltk.grammar import induce_pcfg
 from nltk import Nonterminal
 from model_wrapper import model_wrapper
 from next_lvl_shit import loadCorpus
+from next_lvl_shit import getSentencesWithKnownWords
 from nltk.tree import Tree
 import re
 
@@ -81,15 +82,15 @@ def splitSentence(sentence):
 		res.append(word + "_r")
 	return res
 
-def run_parser(corpus, gold):
+def run_parser(corpus, n=10):
 	"""
 	Runs the parser on a corpus.
 	@param corpus: List of lists with input tokens
 	"""
 	total = 0
 	right = 0
-	for sentence in corpus:
-		sentence = [word[0] for word in sentence]
+	for item in corpus:
+		sentence = [word[0] for word in item]
 		grammar = getGrammar(sentence)
 		parser = Parser(grammar)
 		sent = splitSentence(sentence)
@@ -97,11 +98,14 @@ def run_parser(corpus, gold):
 		# tree.draw()
 		# print tree.pprint(margin=30)
 		deps = extractDepParse(tree, sentence)
+		print len(deps), len(sentence)
 		for i in xrange(0, len(sentence)):
 			total += 1
-			if deps[i] == gold[i]:
+			if deps[i] == item[i][1]:
 				right += 1
 		# cyk(sent)
+		if total == n:
+			break
 	return (right/total) * 100
 
 def extractDepParse(tree, sentence):
@@ -163,6 +167,7 @@ def cyk(sentence):
 
 # sents = ["The big dog barks to this other dog".split(" "),
 # sents = ["The new rate will be payable".split(" ")]
-sents, gold = loadCorpus(size=1)
-run_parser(sents, gold)
+sents = loadCorpus()
+sents = getSentencesWithKnownWords(sents, model.embeddings)
+print run_parser(sents)
 
