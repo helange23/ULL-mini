@@ -104,6 +104,7 @@ def run_parser(corpus, n=10):
 			if deps[i] == item[i][1]:
 				right += 1
 		# cyk(sent)
+		n += 1
 		if total == n:
 			break
 	return (right/total) * 100
