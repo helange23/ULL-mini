@@ -48,10 +48,11 @@ def getGMMProbs(GMM,argument,embeddings):
     
     
 def getProb(head, argument, GMM, rep_vec, embeddings):
-    probs = getGMMProbs(GMM,argument,embeddings)
+    #probs = getGMMProbs(GMM,argument,embeddings)
+    probs = GMM.predict_proba([embeddings[argument]])
     #print sum(probs)
     #print sum(rep_vec[head])
-    return np.dot(probs,rep_vec[head])
+    return np.dot(probs,rep_vec[head])[0]
     
 def trainRoot(root, embeddings, GMM):
     out = getGMMProbs(GMM, root[0], embeddings)
@@ -281,11 +282,14 @@ def getSentencesWithKnownWords(corpus, embeddings):
         for dep in sentence:
             if not embeddings.has_key(dep[0]):
                 known_all = False
-        if known_all:
+        if known_all and len(sentence)<10:
             out.append(sentence)
     return out
     
-
+def printAllArguments(head, dep):
+    for d in dep:
+        if d[0] == head:
+            print d[1]
 
 '''
 rep_vecs = list()
