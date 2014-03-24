@@ -291,19 +291,19 @@ def printAllArguments(head, dep):
         if d[0] == head:
             print d[1]
 
-'''
 rep_vecs = list()
 print 'Initializing'
 embeds, all_deps, root = initialize()
 
 print 'Embeddings and dependencies loaded, training GMM ...'
 
-g = getGMMClusters(embeds, 200)
-pickle.dump(g,open('GMM200','wb'))
+k=500
+g = getGMMClusters(embeds, k)
+pickle.dump(g,open('GMM'+str(k),'wb'))
 
 print 'GMM trained, training root'
 root_weights = trainRoot(root, embeds, g)
-pickle.dump(rep_vecs,open('root200','wb'))
+pickle.dump(rep_vecs,open('root'+str(k),'wb'))
 
 print 'root trained, training rep vectors'
 
@@ -313,5 +313,5 @@ for dep in all_deps:
     
 print 'Saving'
     
-pickle.dump(rep_vecs,open('rep_model200','wb'))
-print 'Done'''
+pickle.dump(rep_vecs,open('rep_model'+str(k),'wb'))
+print 'Done'
