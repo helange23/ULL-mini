@@ -39,7 +39,7 @@ class model_wrapper:
             
     def findBestArgs(self, head, model=0):
         probs = list()
-        for arg in embeddings.keys():
+        for arg in self.embeddings.keys():
             probs.append(getProb(head,arg,self.GMM, self.rep_vec[model],self.embeddings))
             
         best = np.argsort(probs)[-10:]
