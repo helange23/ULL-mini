@@ -7,6 +7,7 @@ from nltk.grammar import Production
 from nltk.grammar import WeightedProduction
 from nltk.grammar import induce_pcfg
 from nltk import Nonterminal
+import model_wrapper
 from nltk.tree import Tree
 import re
 
@@ -54,12 +55,12 @@ def getGrammar(sentence):
 		RP_head = Nonterminal('RP_'+head)
 		for j in xrange(0, i):
 			arg = sentence[j]
-			prob = getProb(head, arg)
+			prob = model_wrapper.getProb(head, arg, direction='left')
 
 			grammar.productions().append(WeightedProduction(L1_head, [Nonterminal('Y_'+sentence[j]), LP_head],prob=prob))
 		for j in xrange(i+1, len(sentence)):
 			arg = sentence[j]
-			prob = getProb(head, arg)
+			prob = model_wrapper.getProb(head, arg, direction='right')
 			grammar.productions().append(WeightedProduction(R1_head, [RP_head, Nonterminal('Y_'+sentence[j])], prob=prob))
 
 	return grammar
