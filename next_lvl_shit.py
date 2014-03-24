@@ -54,10 +54,10 @@ def getProb(head, argument, GMM, rep_vec, embeddings):
 	#print sum(rep_vec[head])
 	return np.dot(probs,rep_vec[head])[0]
 
-def trainRoot(root, embeddings, GMM):
-	out = getGMMProbs(GMM, root[0], embeddings)
-	print np.shape(out)
-	out = np.zeros()
+def trainRoot(root, embeddings, GMM, k):
+	# out = getGMMProbs(GMM, root[0], embeddings)
+	# print np.shape(out)
+	out = np.zeros((k, 1))
 	#del root[0]
 	for arg in root:
 		out = out + GMM.predict_proba([embeddings[arg]])
@@ -270,12 +270,12 @@ def trainModels(k=200):
 
 	print 'Embeddings and dependencies loaded, training GMM ...'
 
-	g = getGMMClusters(embeds, k)
+	# g = getGMMClusters(embeds, k)
 	# pickle.dump(g,open('nnGMM'+str(k),'wb'))
 	g = pickle.load(open('nnGMM'+str(k),'rb'))
 
 	print 'GMM trained, training root'
-	root_weights = trainRoot(root, embeds, g)
+	root_weights = trainRoot(root, embeds, g, k)
 	pickle.dump(root_weights,open('nnroot'+str(k),'wb'))
 
 	print 'root trained, training rep vectors'
