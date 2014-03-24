@@ -11,10 +11,10 @@ from sklearn import mixture
 
 class model_wrapper:
     
-    def __init__(self):
+    def __init__(self, k=200):
         print 'Loading model data - this may take a while'
-        self.GMM = pickle.load(open('GMM200','rb'))
-        self.rep_vecs = pickle.load(open('rep_model200','rb'))
+        self.GMM = pickle.load(open('GMM'+str(k),'rb'))
+        self.rep_vecs = pickle.load(open('rep_model'+str(k),'rb'))
         self.embeddings = loadEmbeddings()
         self.root_weights = pickle.load(open('fixed_root','rb'))
         print 'Model data loaded'

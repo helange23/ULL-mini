@@ -13,7 +13,6 @@ from next_lvl_shit import getSentencesWithKnownWords
 from nltk.tree import Tree
 import re
 
-model = model_wrapper()
 
 def getProb(head, arg):
 	"""
@@ -174,6 +173,7 @@ def cyk(sentence):
 
 # sents = ["The big dog barks to this other dog".split(" "),
 # sents = ["The new rate will be payable".split(" ")]
+model = model_wrapper(k=500)
 sents = loadCorpus()
 sents = getSentencesWithKnownWords(sents, model.embeddings)
 print run_parser(sents)
