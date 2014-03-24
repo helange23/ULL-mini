@@ -11,6 +11,7 @@ from model_wrapper import model_wrapper
 from nltk.tree import Tree
 import re
 
+model = model_wrapper()
 
 def getProb(head, arg):
 	"""
