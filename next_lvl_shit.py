@@ -205,12 +205,14 @@ def loadEmbeddings():
     return embeds
     
     
-def deleteUnusedWords(embeddings, all_deps):
+def deleteUnusedWords(embeddings, root, all_deps):
     unique_words = set()
     for dep in all_deps:
         for d in dep:
             unique_words.add(d[0])
             unique_words.add(d[1])
+    for w in root:
+        unique_words.add(w)
     for k in embeddings.keys():
         if not k in unique_words:
             del embeddings[k]
@@ -278,6 +280,10 @@ def visualizeRoots(root, root_weights, GMM, embeds):
 rep_vecs = list()
 print 'Initializing'
 embeds, all_deps, root = initialize()
+
+if 'Helper' in root:
+    print 'WTHG?'
+
 print 'Embeddings and dependencies loaded, training GMM ...'
 
 g = getGMMClusters(embeds, 200)
