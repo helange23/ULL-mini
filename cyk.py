@@ -150,6 +150,6 @@ def cyk(sentence):
 
 
 sents = ["The big dog barks to this other dog".split(" "),
-		 "John thinks Mary is not quite right in the head".split(" ")]
+		 "Ms. Haag plays Elianti".split(" ")]
 run_parser(sents)
 
