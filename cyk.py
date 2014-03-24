@@ -97,7 +97,7 @@ def run_parser(corpus, n=1000):
 		sent = splitSentence(sentence)
 		tree = parser.parse(sent)
 		# tree.draw()
-		print tree.pprint(margin=10)
+		# print tree.pprint(margin=30)
 		deps = extractDepParse(tree, sentence)
 		print len(deps), len(sentence)
 		for i in xrange(0, len(sentence)):
@@ -125,7 +125,7 @@ def extractDepParse(tree, sentence):
 	@param tree: NLTK tree
 	@param sentence: The original input sentence
 	"""
-	tree = tree.pprint(margin=10)
+	tree = tree.pprint(margin=30)
 	deps = [None for i in xrange(0, len(sentence))]
 	already_assigned = {}
 	stack = []
@@ -134,7 +134,7 @@ def extractDepParse(tree, sentence):
 		# indents = len(re.findall('[ ]*', line)[0])
 		if line.strip()[0:3] == '(S':
 			stack.append(0)
-		if line.strip()[2:4] == '1_':
+		if line.strip()[0:4] in ['(R1_', '(L1_']:
 			dep = line.strip()[4:]
 			dep_index = sentence.index(dep) + 1
 			stack.append(dep_index)
