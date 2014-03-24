@@ -88,6 +88,7 @@ def run_parser(corpus, n=10):
 	@param corpus: List of lists with input tokens
 	"""
 	total = 0
+	total_sent = 0
 	right = 0
 	for item in corpus:
 		sentence = [word[0] for word in item]
@@ -104,8 +105,8 @@ def run_parser(corpus, n=10):
 			if deps[i] == item[i][1]:
 				right += 1
 		# cyk(sent)
-		total += 1
-		if total == n:
+		total_sent += 1
+		if total_sent == n:
 			break
 	return (right/total) * 100
 
