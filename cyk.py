@@ -55,7 +55,7 @@ def getGrammar(sentence):
 		RP_head = Nonterminal('RP_'+head)
 		Y_head = Nonterminal('Y_'+head)
 
-		grammar.productions().append(WeightedProduction(S, [Y_head]), prob=model.getRootProb(head))
+		grammar.productions().append(WeightedProduction(S, [Y_head], prob=model.getRootProb(head)))
 		for j in xrange(0, i):
 			arg = sentence[j]
 			prob = model.getProb(head, arg, direction='left')
