@@ -298,13 +298,13 @@ def trainModels(k=200):
 
 	print 'Embeddings and dependencies loaded, training GMM ...'
 
-	# g = getGMMClusters(embeds, k)
-	# pickle.dump(g,open('nnGMM'+str(k),'wb'))
-	g = pickle.load(open('nnGMM'+str(k),'rb'))
+	g = getGMMClusters(embeds, k)
+	pickle.dump(g,open('GMM'+str(k),'wb'))
+	# g = pickle.load(open('GMM'+str(k),'rb'))
 
 	print 'GMM trained, training root'
 	root_weights = trainRoot(root, embeds, g)
-	pickle.dump(root_weights,open('nnroot'+str(k),'wb'))
+	pickle.dump(root_weights,open('root'+str(k),'wb'))
 
 	print 'root trained, training rep vectors'
 
@@ -314,7 +314,7 @@ def trainModels(k=200):
 
 	print 'Saving'
 
-	pickle.dump(rep_vecs,open('nnrep_model'+str(k),'wb'))
+	pickle.dump(rep_vecs,open('rep_model'+str(k),'wb'))
 	print 'Done'
 
 trainModels()
