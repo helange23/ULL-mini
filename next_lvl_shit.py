@@ -62,7 +62,7 @@ def trainRoot(root, embeddings, GMM, k):
 	for arg in root:
 		out = out + GMM.predict_proba([embeddings[arg]])
 
-	return out/sum(out)
+	return out/len(root)
 
 
 def createResponsibilityVector(dep, embeddings, GMM):
@@ -76,7 +76,7 @@ def createResponsibilityVector(dep, embeddings, GMM):
 	# for head in reps.keys():
 	# 	reps[head]=reps[head]/sum(reps[head])
 
-	return reps
+	return reps/len(dep)
 
 
 def initialize():
