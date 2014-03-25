@@ -73,8 +73,8 @@ def createResponsibilityVector(dep, embeddings, GMM):
 		else:
 			reps[d[0]] = GMM.predict_proba([embeddings[d[1]]])[0]
 
-	for head in reps.keys():
-		reps[head]=reps[head]/sum(reps[head])
+	# for head in reps.keys():
+	# 	reps[head]=reps[head]/sum(reps[head])
 
 	return reps
 
