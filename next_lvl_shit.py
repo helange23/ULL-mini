@@ -317,4 +317,4 @@ def trainModels(k=200):
 	# pickle.dump(rep_vecs,open('rep_model'+str(k),'wb'))
 	# print 'Done'
 
-trainModels()
+# trainModels()
