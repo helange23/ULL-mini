@@ -59,13 +59,13 @@ def getGrammar(sentence):
 		grammar.productions().append(WeightedProduction(S, [Y_head], prob=model.getRootProb(head)))
 		for j in xrange(0, i):
 			arg = sentence[j]
-			prob = model.getProb(head, arg, direction='left', val=1)
+			prob = model.getProb(head, arg, direction='left', val=0)
 			grammar.productions().append(WeightedProduction(L1_head, [Nonterminal('Y_'+sentence[j]), L1_head],prob=prob))
 			prob = model.getProb(head, arg, direction='left', val=0)
 			grammar.productions().append(WeightedProduction(L1_head, [Nonterminal('Y_'+sentence[j]), head+'l'],prob=prob))
 		for j in xrange(i+1, len(sentence)):
 			arg = sentence[j]
-			prob = model.getProb(head, arg, direction='right', val=1)
+			prob = model.getProb(head, arg, direction='right', val=0)
 			grammar.productions().append(WeightedProduction(R1_head, [R1_head, Nonterminal('Y_'+sentence[j])], prob=prob))
 			prob = model.getProb(head, arg, direction='right', val=0)
 			grammar.productions().append(WeightedProduction(R1_head, [head+'_r', Nonterminal('Y_'+sentence[j])], prob=prob))
