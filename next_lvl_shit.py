@@ -303,7 +303,7 @@ def trainModels(k=200):
 	g = pickle.load(open('nnGMM'+str(k),'rb'))
 
 	print 'GMM trained, training root'
-	root_weights = trainRoot(root, embeds, g, k)
+	root_weights = trainRoot(root, embeds, g)
 	pickle.dump(root_weights,open('nnroot'+str(k),'wb'))
 
 	print 'root trained, training rep vectors'
