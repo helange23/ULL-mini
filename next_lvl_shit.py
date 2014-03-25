@@ -58,7 +58,7 @@ def trainRoot(root, embeddings, GMM):
 	out = getGMMProbs(GMM, root[0], embeddings)
 	#del root[0]
 	for arg in root:
-		out = out + GMM.predict_proba([embeddings[arg]])
+		out = out + GMM.predict_proba([embeddings[arg]])[0]
 
 	return out/sum(out)
 
