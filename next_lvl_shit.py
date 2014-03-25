@@ -54,31 +54,55 @@ def getProb(head, argument, GMM, rep_vec, embeddings):
 	#print sum(rep_vec[head])
 	return np.dot(probs,rep_vec[head])[0]
 
-def trainRoot(root, embeddings, GMM, k):
-	# out = getGMMProbs(GMM, root[0], embeddings)
-	# print np.shape(out)
-	out = np.zeros((k, 1))
+def trainRoot(root, embeddings, GMM):
+	out = getGMMProbs(GMM, root[0], embeddings)
 	#del root[0]
 	for arg in root:
-		pred = GMM.predict_proba([embeddings[arg]])
-		pred /= np.linalg.norm(pred)
-		out = out + pred
+		out = out + GMM.predict_proba([embeddings[arg]])
 
-	return out/len(root)
+	return out/sum(out)
 
 
 def createResponsibilityVector(dep, embeddings, GMM):
 	reps = dict()
 	for d in dep:
-		pred = GMM.predict_proba([embeddings[d[1]]])[0]
-		pred /= np.linalg.norm(pred)
 		if reps.has_key(d[0]):
-			reps[d[0]] = reps[d[0]] + pred
+			reps[d[0]] = reps[d[0]] + GMM.predict_proba([embeddings[d[1]]])[0]
 		else:
-			reps[d[0]] = pred
+			reps[d[0]] = GMM.predict_proba([embeddings[d[1]]])[0]
 
 	for head in reps.keys():
-		reps[head]=reps[head]/len(reps[head])
+		reps[head]=reps[head]/sum(reps[head])
+
+	'''
+	h_a = dict()
+	for d in dep:
+		if h_a.has_key(d[0]):
+			h_a[d[0]].append(d[1])
+		else:
+			h_a[d[0]]=list()
+			h_a[d[0]].append(d[1])
+
+	rep_vecs = dict()
+	print 'length', len(h_a.keys())
+	for w in h_a.keys():
+		#regress_input = list()
+		test = np.zeros((GMM.n_components,1))
+		for arg in h_a[w]:
+			#regress_input.append(getGMMProbs(GMM, arg, embeddings))
+			test = test + getGMMProbs(GMM, arg, embeddings)
+
+		#clf = linear_model.Lasso(positive=True,alpha=0.0,normalize=False, fit_intercept=False)
+		#print np.array(regress_input).shape
+		#clf.fit(np.array(regress_input), np.ones((len(regress_input),1)))
+
+		#print test/sum(test)
+		rep_vecs[w]=test/sum(test)
+	'''
+
+	#print 'Size of h_a', sys.getsizeof(h_a)
+	#print 'Size of rep_vecs', sys.getsizeof(rep_vecs)
+	#del h_a
 
 	return reps
 
