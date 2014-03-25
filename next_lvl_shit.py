@@ -60,7 +60,9 @@ def trainRoot(root, embeddings, GMM, k):
 	out = np.zeros((k, 1))
 	#del root[0]
 	for arg in root:
-		out = out + GMM.predict_proba([embeddings[arg]])
+		pred = GMM.predict_proba([embeddings[arg]])
+		pred /= np.linalg.norm(pred)
+		out = out + pred
 
 	return out/len(root)
 
@@ -68,15 +70,17 @@ def trainRoot(root, embeddings, GMM, k):
 def createResponsibilityVector(dep, embeddings, GMM):
 	reps = dict()
 	for d in dep:
+		pred = GMM.predict_proba([embeddings[d[1]]])[0]
+		pred /= np.linalg.norm(pred)
 		if reps.has_key(d[0]):
-			reps[d[0]] = reps[d[0]] + GMM.predict_proba([embeddings[d[1]]])[0]
+			reps[d[0]] = reps[d[0]] + pred
 		else:
-			reps[d[0]] = GMM.predict_proba([embeddings[d[1]]])[0]
+			reps[d[0]] = pred
 
-	# for head in reps.keys():
-	# 	reps[head]=reps[head]/sum(reps[head])
+	for head in reps.keys():
+		reps[head]=reps[head]/len(reps[head])
 
-	return reps/len(dep)
+	return reps
 
 
 def initialize():
