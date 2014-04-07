@@ -117,48 +117,56 @@ def initialize():
 
 def createDesignMatrix(corpus, embeddings):
 
-	leftstop = list()
-	leftgo = list()
-	rightstop = list()
-	rightgo = list()
+
+	leftstopprob = {}
+	leftdeps = []
+	rightdeps = []
 	root = list()
 
 	good = 0
 	bad = 0
 
-
 	for sentence in corpus:
+		print sentence
+		Largcount = {}
+		Rargcount = {}
 		for i in xrange(0,len(sentence)):
 			dependency = sentence[i][1]
+
 			if not dependency == -1:
+				head = sentence[dependency][0]
+				arg = sentence[i][0]
 
 				#make sure that both words have embeddings
-				if(embeddings.has_key(sentence[i][0]) and embeddings.has_key(sentence[dependency][0])):
-					good = good + 1
+				if embeddings.has_key(arg) and embeddings.has_key(head):
+					good += 1
 
 					#left dependency
 					if i < dependency:
-						if isFirstLeftDependent(sentence,i):
-							leftstop.append([sentence[dependency][0], sentence[i][0]])
+						leftdeps.append([sentence[dependency][0], sentence[i][0]])
+						if Largcount.has_key(head):
+							Largcount[head] += 1
 						else:
-							leftgo.append([sentence[dependency][0], sentence[i][0]])
+							Largcount[head] = 0
 					#right dependency
 					else:
-						if isLastRightDependent(sentence,i):
-							rightstop.append([sentence[dependency][0], sentence[i][0]])
+						rightdeps.append([sentence[dependency][0], sentence[i][0]])
+						if Rargcount.has_key(head):
+							Rargcount[head] += 1
 						else:
-							rightgo.append([sentence[dependency][0], sentence[i][0]])
-
+							Rargcount[head] = 0
 			else:
-				if embeddings.has_key(sentence[i][0]):
-					root.append(sentence[i][0])
+				if embeddings.has_key(arg):
+					root.append(arg)
+
+
 
 
 	#if for both words in a dependency pair there are embedding then it is a
 	#good pair otherwise a bad one
 	print 'bad',bad,'good',good
 
-	return [leftstop, leftgo, rightstop, rightgo], root
+	return [leftdeps, rightdeps], root
 
 
 
