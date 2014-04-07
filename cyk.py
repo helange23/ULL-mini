@@ -31,40 +31,41 @@ def getGrammar(sentence):
 	"""
 	productions = []
 	S = Nonterminal('S')
+	# for i, head in enumerate(sentence):
+	# 	Y_head = Nonterminal('Y_'+head)
+	# 	L_head = Nonterminal('L_'+head)
+	# 	R_head = Nonterminal('R_'+head)
+
+
+	# grammar = induce_pcfg(Nonterminal('S'), productions)
 	for i, head in enumerate(sentence):
-		Y_head = Nonterminal('Y_'+head)
+		L1_head = Nonterminal('L1_'+head)
+		R1_head = Nonterminal('R1_'+head)
+		LP_head = Nonterminal('LP_'+head)
+		RP_head = Nonterminal('RP_'+head)
 		L_head = Nonterminal('L_'+head)
 		R_head = Nonterminal('R_'+head)
-		L1_head = Nonterminal('L1_'+head)
-		R1_head = Nonterminal('R1_'+head)
-		LP_head = Nonterminal('LP_'+head)
-		RP_head = Nonterminal('RP_'+head)
-		productions.append(Production(Y_head, [L_head, R_head]))
-		productions.append(Production(L_head, [head+'_l']))
-		productions.append(Production(R_head, [head+'_r']))
-		# productions.append(Production(L_head, [L1_head]))
-		# productions.append(Production(R_head, [R1_head]))
-		productions.append(Production(LP_head, [head+'_l']))
-		productions.append(Production(RP_head, [head+'_r']))
-		# productions.append(Production(LP_head, [L1_head]))
-		# productions.append(Production(RP_head, [R1_head]))
-	grammar = induce_pcfg(Nonterminal('S'), productions)
-	for i, head in enumerate(sentence):
-		L1_head = Nonterminal('L1_'+head)
-		R1_head = Nonterminal('R1_'+head)
-		LP_head = Nonterminal('LP_'+head)
-		RP_head = Nonterminal('RP_'+head)
 		Y_head = Nonterminal('Y_'+head)
-		#
-		grammar.productions().append(WeightedProduction(S, [Y_head], prob=model.getRootProb(head)))
+		productions.append(WeightedProduction(Y_head, [L_head, R_head], prob=1.0))
+
+		productions.append(WeightedProduction(S, [Y_head], prob=model.getRootProb(head)))
+		productions.append(WeightedProduction(L_head, [L1_head], prob=1 - (model.getStopProb(head, val=0, dir="left"))))
+		productions.append(WeightedProduction(L_head, [head+'_l'], prob= model.getStopProb(head, val=0, dir="left")))
+		productions.append(WeightedProduction(R_head, [R1_head], prob=1 - (model.getStopProb(head, val=0, dir="right"))))
+		productions.append(WeightedProduction(R_head, [head+'_r'], prob= model.getStopProb(head, val=0, dir="right")))
+
+		productions.append(WeightedProduction(LP_head, [head+'_l'], prob= model.getStopProb(head, val=1, dir="left")))
+		productions.append(WeightedProduction(LP_head, [L1_head], prob= 1 - (model.getStopProb(head, val=1, dir="left"))))
+		productions.append(WeightedProduction(RP_head, [head+'_r'], prob= model.getStopProb(head, val=1, dir="right")))
+		productions.append(WeightedProduction(RP_head, [R1_head], prob= 1 - (model.getStopProb(head, val=1, dir="right"))))
 		for j in xrange(0, i):
 			arg = sentence[j]
 			prob = model.getProb(head, arg, direction='left')
-			grammar.productions().append(WeightedProduction(L1_head, [Nonterminal('Y_'+sentence[j]), LP_head],prob=prob))
+			productions.append(WeightedProduction(L1_head, [Nonterminal('Y_'+sentence[j]), LP_head],prob=prob))
 		for j in xrange(i+1, len(sentence)):
 			arg = sentence[j]
 			prob = model.getProb(head, arg, direction='right')
-			grammar.productions().append(WeightedProduction(R1_head, [RP_head, Nonterminal('Y_'+sentence[j])], prob=prob))
+			productions.append(WeightedProduction(R1_head, [RP_head, Nonterminal('Y_'+sentence[j])], prob=prob))
 
 		# grammar.productions().append(WeightedProduction(S, [Y_head], prob=model.getRootProb(head)))
 		# for j in xrange(0, i):
@@ -79,6 +80,8 @@ def getGrammar(sentence):
 		# 	grammar.productions().append(WeightedProduction(R1_head, [R1_head, Nonterminal('Y_'+sentence[j])], prob=prob))
 		# 	prob = model.getProb(head, arg, direction='right', val=1)
 		# 	grammar.productions().append(WeightedProduction(R1_head, [head+'_r', Nonterminal('Y_'+sentence[j])], prob=prob))
+
+	grammar = ContextFreeGrammar(S, productions)
 
 	return grammar
 			
