@@ -10,6 +10,8 @@ from sklearn import mixture
 import pickle
 import matplotlib.pyplot as plt
 
+#fuck git
+
 def getGMMClusters(embeddings, k=50):
 	g = mixture.GMM(n_components=k,covariance_type='tied')
 	g.fit(embeddings.values())
