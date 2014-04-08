@@ -103,6 +103,6 @@ def loadEmbeddings():
 	for word in A:
 		w = word.split()
 		#normalizing to unit length
-		embeds[w[0]] = np.double(w[1:])#/np.linalg.norm(np.double(w[1:]))
+		embeds[w[0]] = np.double(w[1:])/np.linalg.norm(np.double(w[1:]))
 
 	return embeds
