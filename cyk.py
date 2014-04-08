@@ -48,7 +48,7 @@ def getGrammar(sentence):
 		Y_head = Nonterminal('Y_'+head)
 
 		def addProduction(parent, children, prob):
-			productions.append(WeightedProduction(parent, children, prob))
+			productions.append(WeightedProduction(parent, children, prob=prob))
 
 		addProduction(Y_head, [L_head, R_head], prob=1.0)
 
