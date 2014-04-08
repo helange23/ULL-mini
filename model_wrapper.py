@@ -29,15 +29,11 @@ class model_wrapper:
 		else:
 			return 0
 
-	def getProb(self, head, argument, val=0, direction='left'):
-		if val == 1 and direction == 'left':
+	def getProb(self, head, argument, direction='left'):
+		if direction == 'left':
 			return getProb1(head, argument, self.GMM, self.rep_vecs[0], self.embeddings)
-		if val == 0 and direction == 'left':
+		if direction == 'right':
 			return getProb1(head, argument, self.GMM, self.rep_vecs[1], self.embeddings)
-		if val == 1 and direction == 'right':
-			return getProb1(head, argument, self.GMM, self.rep_vecs[2], self.embeddings)
-		if val == 0 and direction == 'right':
-			return getProb1(head, argument, self.GMM, self.rep_vecs[3], self.embeddings)
 		else:
 			print 'Something went wrong - cannot obtain a probability, returning 0'
 

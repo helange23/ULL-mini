@@ -120,18 +120,16 @@ def initialize():
 
 
 def createDesignMatrix(corpus, embeddings):
-	leftstopprob = {}
-	leftdeps = []
-	rightdeps = []
+
+	left= list()
+	right = list()
+
 	root = list()
 
 	good = 0
 	bad = 0
 
 	for sentence in corpus:
-		print sentence
-		Largcount = {}
-		Rargcount = {}
 		for i in xrange(0, len(sentence)):
 			dependency = sentence[i][1]
 
@@ -145,18 +143,11 @@ def createDesignMatrix(corpus, embeddings):
 
 					#left dependency
 					if i < dependency:
-						leftdeps.append([sentence[dependency][0], sentence[i][0]])
-						if Largcount.has_key(head):
-							Largcount[head] += 1
-						else:
-							Largcount[head] = 0
+						left.append([head, arg])
 					#right dependency
 					else:
-						rightdeps.append([sentence[dependency][0], sentence[i][0]])
-						if Rargcount.has_key(head):
-							Rargcount[head] += 1
-						else:
-							Rargcount[head] = 0
+						right.append([head, arg])
+
 			else:
 				if embeddings.has_key(arg):
 					root.append(arg)
@@ -168,7 +159,7 @@ def createDesignMatrix(corpus, embeddings):
 	#good pair otherwise a bad one
 	print 'bad', bad, 'good', good
 
-	return [leftdeps, rightdeps], root
+	return [left, right], root
 
 
 def computeStopProbs():
@@ -410,17 +401,17 @@ def trainModels(k=200):
 	root_weights = trainRoot(root, embeds, g)
 	pickle.dump(root_weights, open('root' + str(k), 'wb'))
 
-#
-# print 'root trained, training rep vectors'
-#
-# for dep in all_deps:
-# 	rep_vecs.append(createResponsibilityVector(dep, embeds, g))
-# 	print 'Rep vectors created'
-#
-# print 'Saving'
-#
-# pickle.dump(rep_vecs,open('rep_model'+str(k),'wb'))
-# print 'Done'
 
-# trainModels()
+	print 'root trained, training rep vectors'
+
+	for dep in all_deps:
+		rep_vecs.append(createResponsibilityVector(dep, embeds, g))
+		print 'Rep vectors created'
+
+	print 'Saving'
+
+	pickle.dump(rep_vecs,open('rep_model'+str(k),'wb'))
+	print 'Done'
+
+trainModels()
 # print computeStopProbs(loadCorpus())[0]
