@@ -10,6 +10,7 @@ from nltk import Nonterminal
 from model_wrapper import model_wrapper
 from next_lvl_shit import loadCorpus
 from next_lvl_shit import getSentencesWithKnownWords
+from next_lvl_shit import trainModels
 from nltk.tree import Tree
 import re
 
@@ -178,9 +179,9 @@ def cyk(sentence):
 				# chart[min][mid][]
 
 
-# sents = ["The big dog barks to this other dog".split(" "),
-# sents = ["The new rate will be payable".split(" ")]
-model = model_wrapper(k=200)
+k=200
+trainModels(k)
+model = model_wrapper(k=k)
 sents = loadCorpus()
 sents = getSentencesWithKnownWords(sents, model.embeddings)
 run_parser(sents)

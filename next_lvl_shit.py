@@ -393,9 +393,9 @@ def trainModels(k=200):
 
 	print 'Embeddings and dependencies loaded, training GMM ...'
 
-	# g = getGMMClusters(embeds, k)
-	# pickle.dump(g,open('GMM'+str(k),'wb'))
-	g = pickle.load(open('GMM' + str(k), 'rb'))
+	g = getGMMClusters(embeds, k)
+	pickle.dump(g,open('GMM'+str(k),'wb'))
+	# g = pickle.load(open('GMM' + str(k), 'rb'))
 
 	print 'GMM trained, training root'
 	root_weights = trainRoot(root, embeds, g)
