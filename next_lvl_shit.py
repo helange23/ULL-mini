@@ -9,6 +9,7 @@ import numpy as np
 from sklearn import mixture
 import pickle
 import matplotlib.pyplot as plt
+from collections import Counter
 
 #fuck git
 
@@ -164,87 +165,58 @@ def createDesignMatrix(corpus, embeddings):
 
 def computeStopProbs():
 	corpus = loadCorpus()
-	pstop_left_val0 = dict()
-	pstop_left_val1 = dict()
-	pstop_right_val0 = dict()
-	pstop_right_val1 = dict()
+	pstop_left_val0 = Counter()
+	pstop_left_val1 = Counter()
+	pstop_right_val0 = Counter()
+	pstop_right_val1 = Counter()
 
-	count = dict()
+	count = Counter()
 
 	for sentence in corpus:
-		num_deps_left = dict()
-		num_deps_right = dict()
+		num_deps_left = Counter()
+		num_deps_right = Counter()
 
 		for i in xrange(0, len(sentence)):
-			s = sentence[i]
-			if not num_deps_left.has_key(s[0]):
-				num_deps_left[s[0]] = 0
-			if not num_deps_right.has_key(s[0]):
-				num_deps_right[s[0]] = 0
+			arg = sentence[i][0]
+			head_index = sentence[i][1]
+			head = sentence[head_index][0]
 
-			if i > s[1]:
+			if i > head_index:
 				#left dependency
-				if not s[1] == -1:
-					if num_deps_left.has_key(sentence[s[1]][0]):
-						num_deps_left[sentence[s[1]][0]] = num_deps_left[sentence[s[1]][0]] + 1
-					else:
-						num_deps_left[sentence[s[1]][0]] = 1
+				if not head_index == -1:
+					num_deps_left[head] += 1
 			else:
 				#right dependency
-				if not s[1] == -1:
-					if num_deps_right.has_key(sentence[s[1]][0]):
-						num_deps_right[sentence[s[1]][0]] = num_deps_right[sentence[s[1]][0]] + 1
-					else:
-						num_deps_right[sentence[s[1]][0]] = 1
+				if not head_index == -1:
+					num_deps_right[head] += 1
 
 		for head in num_deps_left.keys():
-			if count.has_key(head):
-				count[head] = count[head] + 1
-			else:
-				count[head] = 1
+			count[head] += 1.0
 
 			if num_deps_right[head] == 0:
-				if pstop_right_val0.has_key(head):
-					pstop_right_val0[head] += 1.0
-				else:
-					pstop_right_val0[head] = 1.0
+				pstop_right_val0[head] += 1.0
 			else:
-				if pstop_right_val1.has_key(head):
-					pstop_right_val1[head] += 1.0
-				else:
-					pstop_right_val1[head] = 1.0
+				pstop_right_val1[head] += 1.0
 
 			if num_deps_left[head] == 0:
-				if pstop_left_val0.has_key(head):
-					pstop_left_val0[head] += 1.0
-				else:
-					pstop_left_val0[head] = 1.0
+				pstop_left_val0[head] += 1.0
 			else:
-				if pstop_left_val1.has_key(head):
-					pstop_left_val1[head] += 1.0
-				else:
-					pstop_left_val1[head] = 1.0
+				pstop_left_val1[head] += 1.0
 
+	alpha = 1.0
 	for head in count.keys():
-		if pstop_left_val0.has_key(head):
-			pstop_left_val0[head] /= count[head]
-		else:
-			pstop_left_val0[head] = 0
+		denom = count[head] + alpha
+		pstop_left_val0[head] += alpha
+		pstop_left_val0[head] /= denom
 
-		if pstop_left_val1.has_key(head):
-			pstop_left_val1[head] /= count[head]
-		else:
-			pstop_left_val1[head] = 0
+		pstop_left_val1[head] += alpha
+		pstop_left_val1[head] /= denom
 
-		if pstop_right_val0.has_key(head):
-			pstop_right_val0[head] /= count[head]
-		else:
-			pstop_right_val0[head] = 0
+		pstop_right_val0[head] += alpha
+		pstop_right_val0[head] /= denom
 
-		if pstop_right_val1.has_key(head):
-			pstop_right_val1[head] /= count[head]
-		else:
-			pstop_right_val1[head] = 0
+		pstop_right_val1[head] += alpha
+		pstop_right_val1[head] /= denom
 
 	return pstop_left_val0, pstop_left_val1, pstop_right_val0, pstop_right_val1
 
@@ -414,4 +386,4 @@ def trainModels(k=200):
 	print 'Done'
 
 # trainModels()
-# print computeStopProbs(loadCorpus())[0]
+# print computeStopProbs()[0]

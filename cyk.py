@@ -180,7 +180,7 @@ def cyk(sentence):
 
 
 k=200
-trainModels(k)
+# trainModels(k)
 model = model_wrapper(k=k)
 sents = loadCorpus()
 sents = getSentencesWithKnownWords(sents, model.embeddings)
