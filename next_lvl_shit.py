@@ -203,19 +203,19 @@ def computeStopProbs():
 			else:
 				pstop_left_val1[head] += 1.0
 
-	alpha = 1.0
+	alpha = 0.0
 	for head in count.keys():
 		denom = count[head] + alpha
-		pstop_left_val0[head] += alpha
+		# pstop_left_val0[head] += alpha
 		pstop_left_val0[head] /= denom
 
-		pstop_left_val1[head] += alpha
+		# pstop_left_val1[head] += alpha
 		pstop_left_val1[head] /= denom
 
-		pstop_right_val0[head] += alpha
+		# pstop_right_val0[head] += alpha
 		pstop_right_val0[head] /= denom
 
-		pstop_right_val1[head] += alpha
+		# pstop_right_val1[head] += alpha
 		pstop_right_val1[head] /= denom
 
 	return pstop_left_val0, pstop_left_val1, pstop_right_val0, pstop_right_val1
@@ -386,4 +386,4 @@ def trainModels(k=200):
 	print 'Done'
 
 # trainModels()
-# print computeStopProbs()[0]
+print computeStopProbs()[0]
