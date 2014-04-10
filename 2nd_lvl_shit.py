@@ -381,7 +381,7 @@ def printAllArguments(head, dep):
         if d[0] == head:
             print d[1]
 
-def trainModels(k=50):
+def trainModels(k=100):
     rep_vecs = list()
     print 'Initializing'
     embeds, all_deps, root = initialize()
